@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import post_button %}
+{% block title %}Subjects &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Subjects</h1>
+    <p class="text-body-secondary mb-0">The catalogue of subjects and the classes that study them.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('subjects.assign') }}">Assign to classes</a>
+    <a class="btn btn-primary" href="{{ url_for('subjects.create') }}">Add subject</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Classes</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subject in subjects %}
+          <tr>
+            <td><code>{{ subject.code }}</code></td>
+            <td>{{ subject.name }}</td>
+            <td class="text-body-secondary small">{{ subject.description or '-' }}</td>
+            <td>
+              {% for assignment in by_subject.get(subject.id, []) %}
+                <span class="badge text-bg-light border">{{ assignment.school_class.name }}
+                  <span class="text-body-secondary">({{ assignment.max_marks }})</span>
+                </span>
+              {% else %}
+                <span class="text-body-secondary">Not assigned</span>
+              {% endfor %}
+            </td>
+            <td>
+              {% if subject.is_active %}
+                <span class="badge text-bg-success">Active</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('subjects.edit', subject_id=subject.id) }}">Edit</a>
+              {{ post_button(url_for('subjects.delete', subject_id=subject.id), 'Delete',
+                             confirm='Delete ' ~ subject.name ~ '? It is removed from every class and all marks recorded for it are deleted. This cannot be undone.') }}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-body-secondary py-4">No subjects yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

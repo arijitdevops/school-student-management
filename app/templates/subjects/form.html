@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import render_field %}
+{% block title %}{{ 'Edit' if subject else 'Add' }} subject &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-7">
+    <h1 class="h3 mb-3">{{ 'Edit ' ~ subject.name if subject else 'Add a subject' }}</h1>
+    <form method="post" novalidate class="card card-body">
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-4">{{ render_field(form.code, 'MAT') }}</div>
+        <div class="col-md-8">{{ render_field(form.name, 'Mathematics') }}</div>
+      </div>
+      {{ render_field(form.description, 'What the subject covers') }}
+      <div class="form-check mb-3">
+        {{ form.is_active(class='form-check-input') }}
+        {{ form.is_active.label(class='form-check-label') }}
+      </div>
+      <div class="d-flex gap-2">
+        {{ form.submit(class='btn btn-primary') }}
+        <a class="btn btn-outline-secondary" href="{{ url_for('subjects.list_subjects') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Reports &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-1">Reports</h1>
+<p class="text-body-secondary">
+  Class results rank every student by their weighted aggregate. Individual report cards show
+  the marks for each subject in each exam, with the class rank alongside.
+</p>
+
+{% if exams %}
+  <div class="mb-3">
+    <span class="text-body-secondary small text-uppercase">Exams in the current year:</span>
+    {% for exam in exams %}
+      <span class="badge text-bg-light border">{{ exam.name }} &middot; {{ exam.weightage }}%</span>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="row g-3">
+  {% for school_class in classes %}
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">{{ school_class.name }}</h2>
+          <p class="text-body-secondary mb-3">
+            {{ school_class.active_student_count }} student(s) on roll &middot;
+            sections {{ school_class.section_names | join(', ') or '-' }}
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm btn-primary" href="{{ url_for('reports.class_result', class_id=school_class.id) }}">
+              Result list</a>
+            {% for section in school_class.sections %}
+              <a class="btn btn-sm btn-outline-secondary"
+                 href="{{ url_for('reports.class_result', class_id=school_class.id, section_id=section.id) }}">
+                Section {{ section.name }}</a>
+            {% endfor %}
+            <a class="btn btn-sm btn-outline-success"
+               href="{{ url_for('reports.class_result_csv', class_id=school_class.id) }}">CSV</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="col-12">
+      <div class="alert alert-info">No classes have been created yet. Run the seed script to load demo data.</div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

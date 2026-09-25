@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Report card &middot; {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">Report card</h1>
+    <p class="text-body-secondary mb-0">
+      {{ student.full_name }} &middot; {{ student.class_label }} &middot; Roll {{ student.roll_number }}
+      {% if academic_year %} &middot; {{ academic_year.name }}{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('students.detail', student_id=student.id) }}">Student record</a>
+    <a class="btn btn-primary" href="{{ url_for('reports.report_card_print', student_id=student.id) }}" target="_blank"
+       rel="noopener">Printable version</a>
+  </div>
+</div>
+
+{% include 'reports/_report_card_body.html' %}
+{% endblock %}

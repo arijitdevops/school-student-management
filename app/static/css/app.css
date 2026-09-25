@@ -1,0 +1,104 @@
+/* Project styles layered on top of Bootstrap 5. */
+
+:root {
+  --sms-card-hover-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
+}
+
+body {
+  font-size: .95rem;
+}
+
+.stat-card {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sms-card-hover-shadow);
+}
+
+.stat-card .display-6 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Keep long grids readable: the header stays put while the body scrolls. */
+.table-responsive {
+  max-height: 75vh;
+}
+
+.table-responsive thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.mark-input:disabled {
+  background-color: var(--bs-secondary-bg);
+}
+
+.report-table td,
+.report-table th {
+  white-space: nowrap;
+}
+
+.signature-row {
+  page-break-inside: avoid;
+}
+
+/* ---------------------------------------------------------------------------
+   Print layout, used mainly by the report card sheet.
+   --------------------------------------------------------------------------- */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm;
+  }
+
+  body {
+    background: #fff !important;
+    font-size: 11pt;
+  }
+
+  .d-print-none,
+  .btn,
+  nav.navbar,
+  footer {
+    display: none !important;
+  }
+
+  .report-sheet {
+    max-width: none;
+    padding: 0 !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .table-responsive {
+    max-height: none;
+    overflow: visible !important;
+  }
+
+  .table {
+    font-size: 10pt;
+  }
+
+  .table td,
+  .table th {
+    border-color: #000 !important;
+  }
+
+  .badge {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  a[href]:after {
+    content: "";
+  }
+}

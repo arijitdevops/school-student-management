@@ -1,0 +1,55 @@
+# Byte-compiled / optimised files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Flask
+instance/
+.webassets-cache
+
+# Alembic: commit alembic.ini, env.py, script.py.mako and versions/.
+migrations/__pycache__/
+
+# Local configuration and secrets
+.env
+*.env.local
+
+# Databases and dumps
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+dump.sql
+
+# Test and coverage artefacts
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Tooling caches
+.ruff_cache/
+.mypy_cache/
+
+# Exports produced by the reports page
+*.csv
+!docs/**/*.csv
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

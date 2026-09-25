@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}{{ class_subject.subject.name }} &middot; {{ exam.name }} &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ class_subject.subject.name }} &middot; {{ exam.name }}</h1>
+    <p class="text-body-secondary mb-0">
+      {{ class_subject.school_class.name }} &middot; maximum {{ class_subject.max_marks }},
+      pass {{ class_subject.pass_marks }} &middot; {{ students | length }} student(s)
+    </p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('marks.index') }}">Change selection</a>
+</div>
+
+<div class="btn-group btn-group-sm mb-3" role="group" aria-label="Section filter">
+  <a class="btn btn-outline-secondary {{ 'active' if not section_id }}"
+     href="{{ url_for('marks.entry', class_subject_id=class_subject.id, exam_id=exam.id) }}">All sections</a>
+  {% for section in sections %}
+    <a class="btn btn-outline-secondary {{ 'active' if section_id == section.id }}"
+       href="{{ url_for('marks.entry', class_subject_id=class_subject.id, exam_id=exam.id, section_id=section.id) }}">
+      Section {{ section.name }}</a>
+  {% endfor %}
+</div>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 6rem;">Roll</th>
+            <th>Student</th>
+            <th>Section</th>
+            <th style="width: 10rem;" class="text-end">Marks (0 - {{ class_subject.max_marks }})</th>
+            <th style="width: 7rem;" class="text-center">Absent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+            {% set mark = existing.get(student.id) %}
+            <tr>
+              <td>{{ student.roll_number }}</td>
+              <td><a href="{{ url_for('students.detail', student_id=student.id) }}">{{ student.full_name }}</a></td>
+              <td>{{ student.section.name }}</td>
+              <td>
+                <input type="number" step="0.5" min="0" max="{{ class_subject.max_marks }}"
+                       class="form-control form-control-sm text-end mark-input"
+                       name="mark-{{ student.id }}"
+                       value="{{ '' if mark is none or mark.is_absent else mark.display_score }}"
+                       {{ 'disabled' if mark is not none and mark.is_absent }}>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="form-check-input absent-toggle"
+                       name="absent-{{ student.id }}" data-target="mark-{{ student.id }}"
+                       {{ 'checked' if mark is not none and mark.is_absent }}>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-center text-body-secondary py-4">
+              No active students in this class or section.
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if students %}
+    <div class="d-flex gap-2 mt-3">
+      {{ form.submit(class='btn btn-primary') }}
+      <a class="btn btn-outline-secondary" href="{{ url_for('marks.index') }}">Cancel</a>
+    </div>
+  {% endif %}
+</form>
+{% endblock %}

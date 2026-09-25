@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import render_field %}
+{% block title %}{{ 'Edit' if student else 'Add' }} student &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-9">
+    <h1 class="h3 mb-3">{{ 'Edit ' ~ student.full_name if student else 'Add a student' }}</h1>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="card mb-3">
+        <div class="card-header">Student details</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.full_name, 'Full name as on the certificate') }}</div>
+            <div class="col-md-6">{{ render_field(form.admission_number, 'ADM20250001') }}</div>
+            <div class="col-md-4">{{ render_field(form.school_class_id) }}</div>
+            <div class="col-md-4">{{ render_field(form.section_id) }}</div>
+            <div class="col-md-4">{{ render_field(form.roll_number) }}</div>
+            <div class="col-md-4">{{ render_field(form.date_of_birth) }}</div>
+            <div class="col-md-4">{{ render_field(form.gender) }}</div>
+            <div class="col-md-4">{{ render_field(form.blood_group) }}</div>
+            <div class="col-md-4">{{ render_field(form.admission_date) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Parent / guardian and contact</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">{{ render_field(form.guardian_name) }}</div>
+            <div class="col-md-3">{{ render_field(form.guardian_relation) }}</div>
+            <div class="col-md-3">{{ render_field(form.guardian_phone, '9876543210') }}</div>
+            <div class="col-md-6">{{ render_field(form.email, 'name@example.edu') }}</div>
+            <div class="col-md-6">{{ render_field(form.address) }}</div>
+          </div>
+          <div class="form-check">
+            {{ form.is_active(class='form-check-input') }}
+            {{ form.is_active.label(class='form-check-label') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        {{ form.submit(class='btn btn-primary') }}
+        <a class="btn btn-outline-secondary"
+           href="{{ url_for('students.detail', student_id=student.id) if student else url_for('students.list_students') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

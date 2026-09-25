@@ -1,0 +1,92 @@
+{# Shared body of the on-screen and printable report cards. #}
+<div class="card mb-3">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0 report-table">
+      <thead class="table-light">
+        <tr>
+          <th>Subject</th>
+          {% for exam in exams %}
+            <th class="text-end">{{ exam.name }}<br><span class="fw-normal text-body-secondary small">{{ exam.weightage }}%</span></th>
+          {% endfor %}
+          <th class="text-end">Total</th>
+          <th class="text-end">Out of</th>
+          <th class="text-end">Percentage</th>
+          <th class="text-center">Grade</th>
+          <th class="text-center">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subject in result.subjects %}
+          <tr>
+            <td>{{ subject.subject_name }}</td>
+            {% for score in subject.exam_scores %}
+              <td class="text-end">{{ score.display }}</td>
+            {% endfor %}
+            <td class="text-end">{{ subject.obtained | int }}</td>
+            <td class="text-end text-body-secondary">{{ subject.total_max | int }}</td>
+            <td class="text-end">{{ subject.percentage | percent }}</td>
+            <td class="text-center">{{ subject.grade }}</td>
+            <td class="text-center">
+              {% if not subject.has_marks %}
+                <span class="text-body-secondary">-</span>
+              {% elif subject.passed %}
+                <span class="badge text-bg-success">Pass</span>
+              {% else %}
+                <span class="badge text-bg-danger">Fail</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="{{ 7 + exams | length }}" class="text-center text-body-secondary py-4">
+            This class has no subjects assigned yet.
+          </td></tr>
+        {% endfor %}
+      </tbody>
+      {% if result.subjects %}
+        <tfoot class="table-light">
+          <tr class="fw-semibold">
+            <td>Total</td>
+            {% for total in result.exam_totals %}
+              <td class="text-end">{{ total.obtained | int }}/{{ total.total_max | int }}</td>
+            {% endfor %}
+            <td class="text-end">{{ result.obtained | int }}</td>
+            <td class="text-end">{{ result.total_max | int }}</td>
+            <td class="text-end">{{ result.percentage | percent }}</td>
+            <td class="text-center">{{ result.grade }}</td>
+            <td class="text-center">
+              {% if result.passed %}
+                <span class="badge text-bg-success">Pass</span>
+              {% else %}
+                <span class="badge text-bg-danger">Fail</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for label, value in [
+      ('Weighted aggregate', result.weighted_percentage | percent),
+      ('Overall percentage', result.percentage | percent),
+      ('Grade', result.grade),
+      ('Class rank', (result.rank ~ ' of ' ~ class_size) if result.rank else 'Not ranked')
+  ] %}
+    <div class="col-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body py-2">
+          <div class="text-body-secondary small text-uppercase">{{ label }}</div>
+          <div class="h4 mb-0">{{ value }}</div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% if result.failed_subjects %}
+  <div class="alert alert-warning mt-3">
+    Below the pass mark in: {{ result.failed_subjects | join(', ') }}.
+  </div>
+{% endif %}

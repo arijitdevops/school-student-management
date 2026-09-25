@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}{{ school_class.name }} results &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ school_class.name }} &middot; result list</h1>
+    <p class="text-body-secondary mb-0">
+      {% if academic_year %}{{ academic_year.name }} &middot; {% endif %}
+      ranked by weighted aggregate; students on the same percentage share a rank.
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-success"
+       href="{{ url_for('reports.class_result_csv', class_id=school_class.id, section_id=section_id or None) }}">
+      Export CSV</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('reports.index') }}">All classes</a>
+  </div>
+</div>
+
+<div class="btn-group btn-group-sm mb-3" role="group" aria-label="Section filter">
+  <a class="btn btn-outline-secondary {{ 'active' if not section_id }}"
+     href="{{ url_for('reports.class_result', class_id=school_class.id) }}">All sections</a>
+  {% for section in school_class.sections %}
+    <a class="btn btn-outline-secondary {{ 'active' if section_id == section.id }}"
+       href="{{ url_for('reports.class_result', class_id=school_class.id, section_id=section.id) }}">
+      Section {{ section.name }}</a>
+  {% endfor %}
+</div>
+
+<div class="row g-3 mb-3">
+  {% for label, value in [
+      ('Students', summary.student_count),
+      ('With marks', summary.evaluated_count),
+      ('Passed', summary.passed_count),
+      ('Failed', summary.failed_count),
+      ('Class average', summary.average_percentage | percent),
+      ('Highest', summary.highest_percentage | percent)
+  ] %}
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="card h-100">
+        <div class="card-body py-2">
+          <div class="text-body-secondary small text-uppercase">{{ label }}</div>
+          <div class="h4 mb-0">{{ value }}</div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="text-end">Rank</th>
+          <th class="text-end">Roll</th>
+          <th>Student</th>
+          {% for class_subject in class_subjects %}
+            <th class="text-end" title="Maximum {{ class_subject.max_marks }} per exam">
+              {{ class_subject.subject.code }}</th>
+          {% endfor %}
+          <th class="text-end">Total</th>
+          <th class="text-end">Percentage</th>
+          <th class="text-end">Weighted</th>
+          <th class="text-center">Grade</th>
+          <th class="text-center">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+          {% set by_id = {} %}
+          {% for subject in result.subjects %}{% set _ = by_id.update({subject.class_subject_id: subject}) %}{% endfor %}
+          <tr>
+            <td class="text-end fw-semibold">{{ result.rank or '-' }}</td>
+            <td class="text-end">{{ result.roll_number }}</td>
+            <td><a href="{{ url_for('reports.report_card', student_id=result.student_id) }}">{{ result.student_name }}</a></td>
+            {% for class_subject in class_subjects %}
+              {% set subject = by_id.get(class_subject.id) %}
+              <td class="text-end {{ '' if not subject or subject.passed or not subject.has_marks else 'text-danger' }}">
+                {% if subject and subject.has_marks %}{{ subject.obtained | int }}/{{ subject.total_max | int }}{% else %}-{% endif %}
+              </td>
+            {% endfor %}
+            <td class="text-end">{{ result.obtained | int }}/{{ result.total_max | int }}</td>
+            <td class="text-end">{{ result.percentage | percent }}</td>
+            <td class="text-end">{{ result.weighted_percentage | percent }}</td>
+            <td class="text-center"><span class="badge text-bg-light border">{{ result.grade }}</span></td>
+            <td class="text-center">
+              {% if not result.has_marks %}
+                <span class="badge text-bg-secondary">No marks</span>
+              {% elif result.passed %}
+                <span class="badge text-bg-success">Pass</span>
+              {% else %}
+                <span class="badge text-bg-danger" title="{{ result.failed_subjects | join(', ') }}">Fail</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="{{ 9 + class_subjects | length }}" class="text-center text-body-secondary py-4">
+            No students on roll for this class or section.
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

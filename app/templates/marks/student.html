@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Marks for {{ student.full_name }} &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">Marks for {{ student.full_name }}</h1>
+    <p class="text-body-secondary mb-0">{{ student.class_label }} &middot; Roll {{ student.roll_number }}</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('students.detail', student_id=student.id) }}">Back to record</a>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+  {% for item in exams %}
+    <li class="nav-item">
+      <a class="nav-link {{ 'active' if item.id == exam.id }}"
+         href="{{ url_for('marks.student_marks', student_id=student.id, exam_id=item.id) }}">{{ item.name }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<form method="post" action="{{ url_for('marks.student_marks', student_id=student.id, exam_id=exam.id) }}" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Subject</th>
+            <th class="text-end">Maximum</th>
+            <th class="text-end">Pass</th>
+            <th style="width: 10rem;" class="text-end">Marks</th>
+            <th style="width: 7rem;" class="text-center">Absent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for class_subject in class_subjects %}
+            {% set mark = existing.get(class_subject.id) %}
+            <tr>
+              <td>{{ class_subject.subject.name }}</td>
+              <td class="text-end text-body-secondary">{{ class_subject.max_marks }}</td>
+              <td class="text-end text-body-secondary">{{ class_subject.pass_marks }}</td>
+              <td>
+                <input type="number" step="0.5" min="0" max="{{ class_subject.max_marks }}"
+                       class="form-control form-control-sm text-end mark-input"
+                       name="mark-{{ class_subject.id }}"
+                       value="{{ '' if mark is none or mark.is_absent else mark.display_score }}"
+                       {{ 'disabled' if mark is not none and mark.is_absent }}>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="form-check-input absent-toggle"
+                       name="absent-{{ class_subject.id }}" data-target="mark-{{ class_subject.id }}"
+                       {{ 'checked' if mark is not none and mark.is_absent }}>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-center text-body-secondary py-4">
+              This class has no subjects assigned yet.
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if class_subjects %}
+    <div class="d-flex gap-2 mt-3">
+      {{ form.submit(class='btn btn-primary') }}
+      <a class="btn btn-outline-secondary" href="{{ url_for('students.detail', student_id=student.id) }}">Cancel</a>
+    </div>
+  {% endif %}
+</form>
+{% endblock %}

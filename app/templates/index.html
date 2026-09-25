@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0">Dashboard</h1>
+    <p class="text-body-secondary mb-0">
+      {% if academic_year %}Academic year {{ academic_year.name }}{% else %}No academic year has been created yet.{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('marks.index') }}">Enter marks</a>
+    <a class="btn btn-primary" href="{{ url_for('reports.index') }}">Reports</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, value, endpoint in [
+      ('Students on roll', totals.students, url_for('students.list_students')),
+      ('Former students', totals.inactive_students, url_for('students.list_students', status='inactive')),
+      ('Classes', totals.classes, url_for('reports.index')),
+      ('Subjects', totals.subjects, url_for('subjects.list_subjects')),
+      ('Exams', totals.exams, url_for('marks.index')),
+      ('Marks recorded', totals.marks, url_for('marks.index'))
+  ] %}
+    <div class="col-6 col-md-4 col-xl-2">
+      <a class="text-decoration-none" href="{{ endpoint }}">
+        <div class="card h-100 stat-card">
+          <div class="card-body">
+            <div class="text-body-secondary small text-uppercase">{{ label }}</div>
+            <div class="display-6">{{ value }}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header">Class strength</div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Class</th>
+          <th scope="col">Sections</th>
+          <th scope="col" class="text-end">Students on roll</th>
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for school_class, strength in strength_rows %}
+          <tr>
+            <td>{{ school_class.name }}</td>
+            <td>{{ school_class.section_names | join(', ') or '-' }}</td>
+            <td class="text-end">{{ strength }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-secondary"
+                 href="{{ url_for('students.list_students', school_class_id=school_class.id) }}">Students</a>
+              <a class="btn btn-sm btn-outline-primary"
+                 href="{{ url_for('reports.class_result', class_id=school_class.id) }}">Results</a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="text-center text-body-secondary py-4">
+            No classes yet. Run <code>python scripts/seed_data.py</code> to load the demo data.
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

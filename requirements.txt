@@ -1,0 +1,18 @@
+# Runtime dependencies. Versions are pinned to a compatible major range so that
+# `pip install -r requirements.txt` stays reproducible without freezing patches.
+
+Flask>=3.0,<4
+Flask-SQLAlchemy>=3.1,<4
+Flask-Migrate>=4.0,<5
+Flask-WTF>=1.2,<2
+WTForms>=3.1,<4
+SQLAlchemy>=2.0,<3
+alembic>=1.13,<2
+PyMySQL>=1.1,<2
+cryptography>=42.0            # required by PyMySQL for MySQL 8 caching_sha2_password
+email-validator>=2.1,<3       # required by the WTForms Email() validator
+python-dotenv>=1.0,<2         # lets `flask run` pick up .env
+Faker>=30.0,<41               # used only by scripts/seed_data.py
+
+# Development and test extras (install with: pip install -r requirements.txt)
+# are declared in pyproject.toml under [project.optional-dependencies].

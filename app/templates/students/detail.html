@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import post_button %}
+{% block title %}{{ student.full_name }} &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ student.full_name }}</h1>
+    <p class="text-body-secondary mb-0">
+      {{ student.class_label }} &middot; Roll {{ student.roll_number }} &middot;
+      <code>{{ student.admission_number }}</code>
+      {% if not student.is_active %}<span class="badge text-bg-secondary ms-2">Left the school</span>{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('students.edit', student_id=student.id) }}">Edit</a>
+    <a class="btn btn-outline-primary" href="{{ url_for('marks.student_marks', student_id=student.id) }}">Edit marks</a>
+    <a class="btn btn-primary" href="{{ url_for('reports.report_card', student_id=student.id) }}">Report card</a>
+    {% if student.is_active %}
+      {{ post_button(url_for('students.deactivate', student_id=student.id), 'Remove from roll',
+                     confirm='Remove ' ~ student.full_name ~ ' from the roll?') }}
+    {% else %}
+      {{ post_button(url_for('students.restore', student_id=student.id), 'Restore', 'btn btn-outline-success') }}
+    {% endif %}
+    {{ post_button(url_for('students.delete', student_id=student.id), 'Delete permanently', 'btn btn-danger',
+                   confirm='Permanently delete ' ~ student.full_name ~ ' and all of their marks? This cannot be undone.') }}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">Record</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Date of birth</dt>
+          <dd class="col-7">{{ student.date_of_birth.strftime('%d %b %Y') }} ({{ student.age_on() }} years)</dd>
+          <dt class="col-5">Gender</dt><dd class="col-7">{{ student.gender_label }}</dd>
+          <dt class="col-5">Blood group</dt><dd class="col-7">{{ student.blood_group or '-' }}</dd>
+          <dt class="col-5">Parent / guardian</dt>
+          <dd class="col-7">{{ student.guardian_name }} <span class="text-body-secondary">({{ student.guardian_relation }})</span></dd>
+          <dt class="col-5">Phone</dt><dd class="col-7">{{ student.guardian_phone }}</dd>
+          <dt class="col-5">Email</dt><dd class="col-7">{{ student.email or '-' }}</dd>
+          <dt class="col-5">Address</dt><dd class="col-7">{{ student.address or '-' }}</dd>
+          <dt class="col-5">Admitted</dt><dd class="col-7">{{ student.admission_date.strftime('%d %b %Y') }}</dd>
+          <dt class="col-5">Record created</dt><dd class="col-7">{{ student.created_at.strftime('%d %b %Y') }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-8">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Marks{% if academic_year %} &middot; {{ academic_year.name }}{% endif %}</span>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('marks.student_marks', student_id=student.id) }}">Edit</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Exam</th>
+              <th>Subject</th>
+              <th class="text-end">Marks</th>
+              <th class="text-end">Out of</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set ns = namespace(rows=0) %}
+            {% for exam in exams %}
+              {% for mark in marks_by_exam.get(exam.id, []) %}
+                {% set ns.rows = ns.rows + 1 %}
+                <tr>
+                  <td>{{ exam.name if loop.first else '' }}</td>
+                  <td>{{ mark.class_subject.subject.name }}</td>
+                  <td class="text-end">{{ mark.display_score }}</td>
+                  <td class="text-end text-body-secondary">{{ mark.class_subject.max_marks }}</td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+            {% if ns.rows == 0 %}
+              <tr><td colspan="4" class="text-center text-body-secondary py-4">No marks recorded yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

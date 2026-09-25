@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Something went wrong &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <p class="display-1 fw-light text-body-secondary mb-0">500</p>
+  <h1 class="h4 mb-3">Something went wrong at our end</h1>
+  <p class="text-body-secondary">
+    The error has been written to the application log. If it keeps happening, check the
+    database connection settings in your environment.
+  </p>
+  <a class="btn btn-primary" href="{{ url_for('main.index') }}">Back to the dashboard</a>
+</div>
+{% endblock %}

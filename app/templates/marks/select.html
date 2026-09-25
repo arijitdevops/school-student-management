@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import render_field %}
+{% block title %}Mark entry &middot; {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <h1 class="h3 mb-1">Mark entry</h1>
+    <p class="text-body-secondary">
+      Pick a class, subject and exam to open the entry grid. Choosing a class first narrows the
+      subject list to the subjects that class studies.
+    </p>
+
+    <form method="get" action="{{ url_for('marks.index') }}" class="card card-body mb-3">
+      <div class="row">
+        <div class="col-md-6">{{ render_field(form.school_class_id) }}</div>
+        <div class="col-md-6">{{ render_field(form.section_id) }}</div>
+        <div class="col-md-6">{{ render_field(form.class_subject_id) }}</div>
+        <div class="col-md-6">{{ render_field(form.exam_id) }}</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" name="submit" value="1" class="btn btn-primary">Open grid</button>
+        <button type="submit" class="btn btn-outline-secondary">Refresh subject list</button>
+      </div>
+    </form>
+
+    <div class="alert alert-light border">
+      <strong>Tip:</strong> leaving a box empty removes any mark stored for that student, and ticking
+      <em>Absent</em> records an absence without affecting the maximum marks.
+    </div>
+  </div>
+</div>
+{% endblock %}

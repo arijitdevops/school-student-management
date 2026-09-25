@@ -1,0 +1,39 @@
+# Local MySQL 8 for development.
+#
+#   docker compose up -d
+#
+# On the first start (empty volume) the container runs database/schema.sql and
+# then database/seed_data.sql, so the demo school is ready to browse. Remove the
+# second mount below to start with empty tables instead. To reset everything:
+#
+#   docker compose down -v && docker compose up -d
+#
+# The credentials match the DATABASE_URL in .env.example. They are for local
+# development only.
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: school-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: school_db
+      TZ: UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed_data.sql:/docker-entrypoint-initdb.d/02-seed_data.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-data:
